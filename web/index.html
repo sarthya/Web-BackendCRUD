@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+	<script type="text/javascript">
+		
+		function save() {
+			
+			if(!document.getElementById("name").value ||
+					!document.getElementById("age").value ||
+					!document.getElementById("sex").value){
+				return false;
+
+			}
+			
+
+			var body = {};
+			body.name = document.getElementById("name").value;
+			body.sex = document.getElementById("sex").value;
+			body.age = document.getElementById("age").value;
+
+			const url = "http://localhost:8090/nodes/familyNodes";
+			console.log(body);
+			fetch(url, {
+
+			    method : "POST",
+			    body: JSON.stringify(body),
+			    headers: {
+                	'Accept': 'application/json',
+                	'Content-Type': 'application/json;charset=UTF-8'
+            	}
+			    
+			}).then((response) => {
+					//console.log("POST API called", response.json());
+					return response.json();
+			}).then(
+			    (html) => {
+			    	familyNodes();
+			    	console.log(html)}
+			);
+
+
+		}
+		function familyNodes() {
+
+			var nodes = new Array();
+        //Build an array containing Customer records.
+        	const url = "http://localhost:8090/nodes/familyNodes";
+			fetch(url, {
+			    method : "GET",
+			    headers: {
+                	'Accept': 'application/json',
+                	'Content-Type': 'application/json;charset=UTF-8'
+            	}
+			    
+			}).then((response) => {
+				return response.json() 
+			    
+			}).then((data) => {
+     			 nodes = data;
+     			 fillData(nodes);
+	    	});
+
+			
+		}
+		function fillData(nodes) {
+			console.log('Data: ', nodes);
+			var table = document.createElement("TABLE");
+			table.classList.add("table");
+			table.classList.add("table-bordered");
+        	
+
+ 
+        //Get the count of columns.
+        var columnCount = nodes[0].length;
+ 		//console.log(columnCount);
+        //Add the header row.
+        var headers  = new Array();
+        headers[0] = "Name";
+        headers[1] = "Age";
+        headers[2] = "Sex";
+
+        var row = table.insertRow(-1);
+        if(nodes && nodes.length > 0){
+        	for (var i = 0; i < 3; i++) {
+            	var headerCell = document.createElement("TH");
+            	headerCell.innerHTML = headers[i];
+            	row.appendChild(headerCell);
+
+
+        	}
+        }
+        
+        for (var i = 0; i < nodes.length; i++){
+    		var tr = document.createElement('TR');   
+
+    		var td1 = document.createElement('td');
+    		var td2 = document.createElement('td');
+    		var td3 = document.createElement('td');
+
+    		var name = document.createTextNode(nodes[i].name);
+    		var age = document.createTextNode(nodes[i].age);
+    		var sex = document.createTextNode(nodes[i].sex);
+
+    		td1.appendChild(name);
+    		td2.appendChild(age);
+			td3.appendChild(sex);
+
+    		tr.appendChild(td1);
+    		tr.appendChild(td2);
+    		tr.appendChild(td3);
+
+    		table.appendChild(tr);
+		}
+
+ 
+        var dvTable = document.getElementById("dvTable");
+        dvTable.innerHTML = "";
+        dvTable.appendChild(table);
+		}
+	</script>
+</head>
+<body onload= "familyNodes()" class="m-5">
+
+<h1>Family Nodes</h1>
+
+<form  method="post" id="familyNode">
+  <div class="mb-3"> <label for="name" class="form-label">Name</label>
+  <input type="text" id="name" class="form-control"> </div>
+
+  <div class="mb-3"> <label for="sex" class="form-label">Sex</label>
+  <input type="text" id="sex" class="form-control"> </div>
+  
+ <div class="mb-3">  <label for="age" class="form-label">Age</label>
+  <input type="text" id="age" class="form-control"></div>
+</form>
+
+
+
+<button type="button" class="btn btn-info" onclick="save()" form="familyNode" value="Submit">Submit</button>
+<br>
+<div id="dvTable"  class="container, card"></div>
+</body>
+</html>
